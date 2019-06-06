@@ -1,4 +1,5 @@
-import {metaMaskUtil} from "../src/wallet/metaMaskUtil";
+const BN = require("bn.js");
+import common from "../lib/wallet/common";
 
 describe("generate key_pair test", function () {
     this.timeout(100000);
@@ -6,6 +7,7 @@ describe("generate key_pair test", function () {
     });
 
     it("send tx using metamask", async () => {
-        metaMaskUtil.getAddress();
+        let bn = new BN(20);
+        console.log(bn.toString(16))
     });
 });

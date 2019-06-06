@@ -1,7 +1,6 @@
 import Web3 from 'web3';
 import wallet = require('lib/wallet/WalletUtils');
 
-import {RawTx} from '../model/types';
 import {MetaMaskAccount} from '../../lib/wallet/ethereum/account';
 
 export class MetaMaskUtil {
@@ -25,7 +24,8 @@ export class MetaMaskUtil {
     public async withdraw(tx: RawTx) {
         this.account.sendTransaction(tx)
     }
-
 }
 
 export const metaMaskUtil: MetaMaskUtil = new MetaMaskUtil();
+
+module.exports = MetaMaskUtil;

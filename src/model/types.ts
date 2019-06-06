@@ -14,16 +14,6 @@ export interface KeyPair {
   secretKey: string;
 }
 
-export interface RawTx {
-  to: string;
-  amount: BN;
-  gasLimit: BN;
-  gasPrice: BN;
-  chainId: number;
-  nonce: BN;
-  signed: string;
-}
-
 export interface Signature {
   Rx: string;
   Ry: string;
