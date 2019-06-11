@@ -15,7 +15,7 @@ import {
     GetMarketFillsReq,
     GetMarketsReq,
     GetMarketsRes,
-    GetOrderBookReq,
+    GetOrderBookReq, GetTokensReq, GetTokensRes,
     GetUserFillsReq,
     GetUserOrdersReq,
     GetUserOrdersRes,
@@ -26,6 +26,7 @@ import {
     SimpleOrderCancellationReq,
     SubmitOrderRes
 } from '../../proto_gen/service_dex_pb';
+import {io} from "../model/types";
 
 /**
  * gRPC GrpcUtil Service
@@ -53,6 +54,17 @@ class GrpcUtil {
 
         return new Promise<Account>((resolve: Function, reject: Function): void => {
             this.client.getAccount(address, metadata, (err: ServiceError | null, res: Account) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(res);
+            });
+        });
+    }
+
+    public async getTokens(param: GetTokensReq, metadata: Metadata = new Metadata()): Promise<GetTokensRes> {
+        return new Promise<GetTokensRes>((resolve: Function, reject: Function): void => {
+            this.client.getTokens(param, metadata, (err: ServiceError | null, res: GetTokensRes) => {
                 if (err) {
                     return reject(err);
                 }
@@ -173,6 +185,12 @@ class GrpcUtil {
                 resolve(res);
             });
         });
+    }
+
+    public socketExample() {
+        const socket = io.connect("localhost");  // TODO: config server ip
+        socket.on("news", (data: any) => alert(data));
+        socket.emit("news", "hello");
     }
 
 }
