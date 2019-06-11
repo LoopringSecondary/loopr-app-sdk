@@ -21,13 +21,13 @@ export interface Signature {
 }
 
 export interface OrderInfo {
-  owner?: string;
-  tokenS?: string;
-  tokenB?: string;
+  owner: string;
+  tokenS: string;
+  tokenB: string;
   amountS: BN;
   amountB: BN;
 
-  realmID?: number;
+  exchangeID?: number;
   accountID?: number;
   orderID?: number;
 
@@ -39,9 +39,10 @@ export interface OrderInfo {
   tokenIdB?: number;
 
   allOrNone?: boolean;
-  validSince?: number;
-  validUntil?: number;
-  maxFeeBips?: number;
+  validSince: number;
+  validUntil: number;
+  maxFeeBips: number;
+  buy: boolean;
 
   feeBips?: number;
   rebateBips?: number;
@@ -168,7 +169,7 @@ export interface Block {
   operator: Operator;
 }
 
-export interface Account {
+export class DexAccount {
   accountID: number;
   owner: string;
   publicKeyX: string;

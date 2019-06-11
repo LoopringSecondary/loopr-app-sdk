@@ -48,6 +48,10 @@ message Nonce {
     uint32 value = 1;
 }
 
+message Bips {
+    uint32 value = 1;
+}
+
 message Percentage {
     int32  value = 1;
 }

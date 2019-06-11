@@ -1,31 +1,42 @@
 import Web3 from 'web3';
 import wallet = require('lib/wallet/WalletUtils');
+import {KeyAccount, MetaMaskAccount} from '../../lib/wallet/ethereum/walletAccount';
 
-import {MetaMaskAccount} from '../../lib/wallet/ethereum/account';
+export class PrivateKey {
 
-export class MetaMaskUtil {
+    public account: KeyAccount;
+    public address: string;
 
-    public web3: Web3;
-    public account: MetaMaskAccount;
 
-    constructor() {
-        this.web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
-        this.account = wallet.fromMetaMask(this.web3);
+    /**
+     * Convert eth -> weth
+     * @param amount number amount to deposit e.g. 1.234
+     * @param gasPrice number amount to deposit
+     */
+    public async deposit(amount: number, gasPrice: number) {
+        this.account.sendTransaction()
     }
 
-    public getAddress(): string {
-        return this.account.getAddress();
+    /**
+     * Convert weth -> eth
+     * @param amount string amount to withdraw
+     */
+    public async withdraw(amount: number) {
+
     }
 
-    public async deposit(tx: RawTx) {
-        this.account.sendTransaction(tx)
+    /**
+     * Deposit to Dex
+     * @param mnemonic string
+     * @param password string
+     * @param dpath string
+     */
+    public async depositTo(amount: number) {
     }
 
-    public async withdraw(tx: RawTx) {
-        this.account.sendTransaction(tx)
+    public async withdrawFrom(amount: number) {
     }
 }
 
-export const metaMaskUtil: MetaMaskUtil = new MetaMaskUtil();
+export const privateKey: PrivateKey = new PrivateKey();
 
-module.exports = MetaMaskUtil;

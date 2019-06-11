@@ -2,18 +2,29 @@ import {Empty} from 'google-protobuf/google/protobuf/empty_pb';
 import {StringValue} from 'google-protobuf/google/protobuf/wrappers_pb';
 import {credentials, Metadata, ServiceError} from 'grpc';
 import {Order} from '../../proto_gen/data_order_pb';
-import {OffchainWithdrawalRequest, OrderCancellationRequest} from '../../proto_gen/data_requests_pb';
+import {
+    OffchainWithdrawalRequest,
+    OrderCancellationRequest
+} from '../../proto_gen/data_requests_pb';
 import {DexServiceClient} from '../../proto_gen/service_dex_grpc_pb';
 import {
     Account,
-    CancelOrderRes, DexConfigurations,
-    GetFillsRes, GetMarketFillsReq,
-    GetMarketsReq, GetMarketsRes,
-    GetOrderBookReq, GetUserFillsReq,
-    GetUserOrdersReq, GetUserOrdersRes,
-    GetUserTransfersReq, GetUserTransfersRes,
-    OffchainWithdrawalalRes, OrderBook,
-    SimpleOrderCancellationReq, SubmitOrderRes
+    CancelOrderRes,
+    DexConfigurations,
+    GetFillsRes,
+    GetMarketFillsReq,
+    GetMarketsReq,
+    GetMarketsRes,
+    GetOrderBookReq,
+    GetUserFillsReq,
+    GetUserOrdersReq,
+    GetUserOrdersRes,
+    GetUserTransfersReq,
+    GetUserTransfersRes,
+    OffchainWithdrawalalRes,
+    OrderBook,
+    SimpleOrderCancellationReq,
+    SubmitOrderRes
 } from '../../proto_gen/service_dex_pb';
 
 /**
@@ -37,11 +48,11 @@ class GrpcUtil {
     }
 
     public async getAccount(param: string, metadata: Metadata = new Metadata()): Promise<Account> {
-        const owner: StringValue = new StringValue();
-        owner.setValue(param);
+        const address: StringValue = new StringValue();
+        address.setValue(param);
 
         return new Promise<Account>((resolve: Function, reject: Function): void => {
-            this.client.getAccount(owner, metadata, (err: ServiceError | null, res: Account) => {
+            this.client.getAccount(address, metadata, (err: ServiceError | null, res: Account) => {
                 if (err) {
                     return reject(err);
                 }

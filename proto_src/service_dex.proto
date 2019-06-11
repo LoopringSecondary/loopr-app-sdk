@@ -247,7 +247,6 @@ service DexService {
     rpc getOrderBook(GetOrderBookReq)               returns (OrderBook);
     rpc getCandles(GetCandlesReq)                   returns (Candles);
 
-
     rpc getAccount(google.protobuf.StringValue)     returns (Account);
 
     rpc getUserOrders(GetUserOrdersReq)             returns (GetUserOrdersRes);

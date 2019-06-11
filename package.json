@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "rimraf dist && tsc",
-    "build:proto": "rimraf proto_gen/* && node lib/grpc/proto",
+    "build:proto": "rimraf proto_gen && mkdir proto_gen && node lib/grpc/proto",
     "lint": "tslint --project tsconfig.json ./src/**/*.ts",
     "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },

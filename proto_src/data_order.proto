@@ -21,45 +21,84 @@ package io.lightcone.data.order;
 
 import "data_types.proto";
 
+// new fee model
 message TokenAmounts {
     types.Amount            amount_s                    = 1;
     types.Amount            amount_b                    = 2;
-    types.Amount            amount_f                    = 3;
 }
 
+// old fee model
+//message TokenAmounts {
+//    types.Amount            amount_s                    = 1;
+//    types.Amount            amount_b                    = 2;
+//    types.Amount            amount_f                    = 3;
+//}
+
+// new fee model
 message Order {
     uint32                  exchange_id                 = 1;
     types.OrderID           order_id                    = 2;
     types.AccountID         account_id                  = 3;
-    types.AccountID         wallet_id                   = 4;
     types.TokenID           token_s                     = 5;
     types.TokenID           token_b                     = 6;
-    types.TokenID           token_f                     = 7;
     TokenAmounts            amounts                     = 8;
-    types.Percentage        wallet_split                = 9;
-    types.Percentage        waive_fee                   = 10;
-    bool                    all_or_none                 = 11;
-    uint64                  valid_since                 = 12;
-    uint64                  valid_until                 = 13;
+    types.Bips              max_fee                     = 9;
+    types.Bips              fee                         = 10;
+    types.Bips              rebate                      = 11;
+    bool                    all_or_none                 = 12;
+    uint64                  valid_since                 = 13;
+    uint64                  valid_until                 = 14;
+    bool                    buy                         = 15;
 
-    types.EdDSAPubKey       trading_pub_key             = 14;
-    types.EdDSAPubKey       dual_auth_pub_key           = 15;
-    types.EdDSAPrivKey      dual_auth_priv_key          = 16;
-    types.EdDSASignature    trading_sig                 = 17;
+    types.EdDSAPubKey       trading_pub_key             = 16;
+    types.EdDSAPubKey       dual_auth_pub_key           = 17;
+    types.EdDSAPrivKey      dual_auth_priv_key          = 18;
+    types.EdDSASignature    trading_sig                 = 19;
 
-    TokenAmounts            filled                      = 18;
+    TokenAmounts            filled                      = 20;
 
     // The data in the trade history of tokenS before they are updated
-    types.Amount            history_filled              = 19;
-    types.Amount            history_cancelled           = 20;
-    types.OrderID           history_order_id            = 21;
+    types.Amount            history_filled              = 21;
+    bool                    history_cancelled           = 22;
+    types.OrderID           history_order_id            = 23;
 
-    // The balances of tokenS, tokenB and tokenF before they are updated in
-    // the ring settlement logic
-    TokenAmounts            prev_balances               = 22;
-
-    uint64                  order_uuid                  = 23;
+    uint64                  order_uuid                  = 24;
 }
+
+// old fee model
+//message Order {
+//    uint32                  exchange_id                 = 1;
+//    types.OrderID           order_id                    = 2;
+//    types.AccountID         account_id                  = 3;
+//    types.AccountID         wallet_id                   = 4;
+//    types.TokenID           token_s                     = 5;
+//    types.TokenID           token_b                     = 6;
+//    types.TokenID           token_f                     = 7;
+//    TokenAmounts            amounts                     = 8;
+//    types.Percentage        wallet_split                = 9;
+//    types.Percentage        waive_fee                   = 10;
+//    bool                    all_or_none                 = 11;
+//    uint64                  valid_since                 = 12;
+//    uint64                  valid_until                 = 13;
+//
+//    types.EdDSAPubKey       trading_pub_key             = 14;
+//    types.EdDSAPubKey       dual_auth_pub_key           = 15;
+//    types.EdDSAPrivKey      dual_auth_priv_key          = 16;
+//    types.EdDSASignature    trading_sig                 = 17;
+//
+//    TokenAmounts            filled                      = 18;
+//
+//    // The data in the trade history of tokenS before they are updated
+//    types.Amount            history_filled              = 19;
+//    types.Amount            history_cancelled           = 20;
+//    types.OrderID           history_order_id            = 21;
+//
+//    // The balances of tokenS, tokenB and tokenF before they are updated in
+//    // the ring settlement logic
+//    TokenAmounts            prev_balances               = 22;
+//
+//    uint64                  order_uuid                  = 23;
+//}
 
 message Fill {
     types.AccountID         account_id                  = 1;

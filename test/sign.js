@@ -1,5 +1,7 @@
 const BN = require("bn.js");
-import common from "../lib/wallet/common";
+// const a = require("../lib/walletUtil/WalletUtils");
+
+import {WalletUtils} from '../lib/wallet/WalletUtils';
 
 describe("generate key_pair test", function () {
     this.timeout(100000);
