@@ -2,7 +2,7 @@ import BN = require('bn.js');
 import eddsa = require('lib/sign/eddsa');
 import config from 'lib/wallet/config';
 
-import {grpcUtil} from '../grpc/grpcUtil';
+import {grpcClient} from '../grpc/grpcClient';
 import {DexAccount, OrderInfo, Signature} from '../model/types';
 import Transaction from "../../lib/wallet/ethereum/transaction";
 import * as fm from "../../lib/wallet/common/formatter";
@@ -20,15 +20,16 @@ import {
     OrderID,
     TokenID
 } from "../../proto_gen/data_types_pb";
+import Eth from "../../lib/wallet/ethereum/eth";
 
 export class Exchange {
 
-    private accounts: Map<WalletAccount, DexAccount>;
     private exchangeID: number;
     private exchangeAddr: string;
     private walletAccountID: number;
     private currentDexAccount: DexAccount;
     private currentWalletAccount: WalletAccount;
+    private accounts: Map<WalletAccount, DexAccount>;
 
     public constructor() {
         this.exchangeID = 0;  // TODO: config
@@ -70,8 +71,8 @@ export class Exchange {
             const keyPair = eddsa.generateKeyPair();
             this.createOrUpdateAccount(keyPair.publicKeyX, keyPair.publicKeyY, gasPrice).then((rawTx: Transaction) => {
                     const signedTx = wallet.signEthereumTx(rawTx);
-                    wallet.sendTransaction('', signedTx).then(() => { // TODO: config
-                        grpcUtil.getAccount(wallet.getAddress()).then((account: Account) => {
+                    wallet.sendTransaction(new Eth(''), signedTx).then(() => { // TODO: config
+                        grpcClient.getAccount(wallet.getAddress()).then((account: Account) => {
                             const dexAccount = new DexAccount();
                             dexAccount.nonce = 0;
                             dexAccount.owner = wallet.getAddress();
@@ -313,7 +314,7 @@ export class Exchange {
         const tradingSig = Exchange.genSignature(orderInfo.signature);
         order.setTradingSig(tradingSig);
 
-        return grpcUtil.submitOrder(order);
+        return grpcClient.submitOrder(order);
     }
 
 }

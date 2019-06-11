@@ -15,7 +15,9 @@ import {
     GetMarketFillsReq,
     GetMarketsReq,
     GetMarketsRes,
-    GetOrderBookReq, GetTokensReq, GetTokensRes,
+    GetOrderBookReq,
+    GetTokensReq,
+    GetTokensRes,
     GetUserFillsReq,
     GetUserOrdersReq,
     GetUserOrdersRes,
@@ -29,11 +31,11 @@ import {
 import {io} from "../model/types";
 
 /**
- * gRPC GrpcUtil Service
+ * gRPC GrpcClient Service
  */
-class GrpcUtil {
+class GrpcClient {
 
-    private readonly client: DexServiceClient = new DexServiceClient('localhost:50051', credentials.createInsecure());
+    private readonly client: DexServiceClient = new DexServiceClient('localhost:50051', credentials.createInsecure()); // TODO: config
 
     public async getDexConfigurations(metadata: Metadata = new Metadata()): Promise<DexConfigurations> {
         const empty: Empty = new Empty();
@@ -195,4 +197,4 @@ class GrpcUtil {
 
 }
 
-export const grpcUtil: GrpcUtil = new GrpcUtil();
+export const grpcClient: GrpcClient = new GrpcClient();
