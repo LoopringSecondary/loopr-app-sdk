@@ -1,5 +1,5 @@
 import {Empty} from 'google-protobuf/google/protobuf/empty_pb';
-import {StringValue} from 'google-protobuf/google/protobuf/wrappers_pb';
+import {StringValue, UInt32Value} from 'google-protobuf/google/protobuf/wrappers_pb';
 import {credentials, Metadata, ServiceError} from 'grpc';
 import {Order} from '../../proto_gen/data_order_pb';
 import {
@@ -14,7 +14,7 @@ import {
     GetFillsRes,
     GetMarketFillsReq,
     GetMarketsReq,
-    GetMarketsRes,
+    GetMarketsRes, GetNextOrderIdReq,
     GetOrderBookReq,
     GetTokensReq,
     GetTokensRes,
@@ -67,6 +67,17 @@ class GrpcClient {
     public async getTokens(param: GetTokensReq, metadata: Metadata = new Metadata()): Promise<GetTokensRes> {
         return new Promise<GetTokensRes>((resolve: Function, reject: Function): void => {
             this.client.getTokens(param, metadata, (err: ServiceError | null, res: GetTokensRes) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(res);
+            });
+        });
+    }
+
+    public async getNextOrderId(param: GetNextOrderIdReq, metadata: Metadata = new Metadata()): Promise<UInt32Value> {
+        return new Promise<UInt32Value>((resolve: Function, reject: Function): void => {
+            this.client.getNextOrderId(param, metadata, (err: ServiceError | null, res: UInt32Value) => {
                 if (err) {
                     return reject(err);
                 }

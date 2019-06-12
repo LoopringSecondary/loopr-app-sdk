@@ -8,7 +8,7 @@ import Transaction from "../../lib/wallet/ethereum/transaction";
 import * as fm from "../../lib/wallet/common/formatter";
 import {ethereum} from "../../lib/wallet";
 import {WalletAccount} from "../../lib/wallet/ethereum/walletAccount";
-import {Account} from "../../proto_gen/service_dex_pb";
+import {Account, GetNextOrderIdReq} from "../../proto_gen/service_dex_pb";
 import {Order, TokenAmounts} from "../../proto_gen/data_order_pb";
 import {
     AccountID,
@@ -188,7 +188,7 @@ export class Exchange {
         };
     }
 
-    public async setupOrder(order: OrderInfo, index: number) {
+    public async setupOrder(order: OrderInfo) {
         if (!order.tokenS.startsWith("0x")) {
             order.tokenS = config.getTokenBySymbol(order.tokenS).address;
         }
@@ -201,6 +201,16 @@ export class Exchange {
             order.dualAuthPublicKeyY = keyPair.publicKeyY;
             order.dualAuthSecretKey = keyPair.secretKey;
         }
+
+        order.tokenIdS = config.getTokenBySymbol(order.tokenS).id;
+        order.tokenIdB = config.getTokenBySymbol(order.tokenB).id;
+
+        const getNextOrderIdReq = new GetNextOrderIdReq();
+        getNextOrderIdReq.setTokenId(order.tokenIdS);
+        getNextOrderIdReq.setAccountId(this.currentDexAccount.accountID);
+        const nextOrderId = await grpcClient.getNextOrderId(getNextOrderIdReq);
+        order.orderID = (order.orderID !== undefined) ? order.orderID : nextOrderId.getValue();
+
         order.exchangeID = (order.exchangeID !== undefined) ? order.exchangeID : this.exchangeID;
         order.buy = (order.buy !== undefined) ? order.buy : true;
         order.allOrNone = order.allOrNone ? order.allOrNone : false;
@@ -208,13 +218,7 @@ export class Exchange {
         order.maxFeeBips = (order.maxFeeBips !== undefined) ? order.maxFeeBips : 20;  // TODO: config
         order.feeBips = (order.feeBips !== undefined) ? order.feeBips : order.maxFeeBips;
         order.rebateBips = (order.rebateBips !== undefined) ? order.rebateBips : 0;
-
         order.walletAccountID = (order.walletAccountID !== undefined) ? order.walletAccountID : this.walletAccountID;
-
-        order.orderID = (order.orderID !== undefined) ? order.orderID : index;
-
-        order.tokenIdS = config.getTokenBySymbol(order.tokenS).id;
-        order.tokenIdB = config.getTokenBySymbol(order.tokenB).id;
 
         assert(order.maxFeeBips < 64, "maxFeeBips >= 64");
         assert(order.feeBips < 64, "feeBips >= 64");
@@ -259,7 +263,7 @@ export class Exchange {
 
     public async submitOrder(orderInfo: OrderInfo) {
         const order = new Order();
-        await this.setupOrder(orderInfo, 0);
+        await this.setupOrder(orderInfo);
 
         order.setExchangeId(orderInfo.exchangeID);
 
