@@ -318,3 +318,5 @@ export class Exchange {
     }
 
 }
+
+export const exchange: Exchange = new Exchange();
