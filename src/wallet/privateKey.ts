@@ -140,7 +140,7 @@ export class PrivateKey {
     }
 
     /**
-     * Withfraw from Dex
+     * Withdraw from Dex
      * @param symbol string symbol of token to withdraw
      * @param amount number amount to withdraw, e.g. 1.5
      * @param gasPrice in gwei
