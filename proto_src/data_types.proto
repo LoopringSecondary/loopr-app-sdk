@@ -84,11 +84,6 @@ message EdDSASignature {
     bytes s  = 3;  // 256bit
 }
 
-message Paging {
-    uint32  num     = 1;
-    uint32  skip    = 2;
-}
-
 message CursorPaging {
     uint32  num     = 1;
     uint64  cursor  = 2;
@@ -103,24 +98,19 @@ message Account {
 message TokenMetadata {
     enum Type {
         TOKEN_TYPE_ERC20       = 0;
-        TOKEN_TYPE_ERC1400     = 1;
-        TOKEN_TYPE_ETH         = 2;
-    }
-
-    enum Status {
-        VALID    = 0; // This token is NOT displyed in walelt
-        INVALID     = 1;  // This token is displayed in wallet.
+        TOKEN_TYPE_ETH         = 1;
     }
 
     Type     type                   = 1;
-    Status   status                 = 2;
-    string   symbol                 = 3;
-    string   name                   = 4;
-    string   address                = 5;
-    string   unit                   = 6;
-    int32    decimals               = 7;
-    int32    precision              = 8;
-    int64    updated_at             = 9;
+    string   symbol                 = 2;
+    string   name                   = 3;
+    string   address                = 4;
+    string   unit                   = 5;
+    int32    decimals               = 6;
+    int32    precision              = 7;
+    int64    updated_at             = 8;
+    TokenID  token_id               = 9;  // token id in merkle tree
+    bool     deposit_enabled        = 10;
 }
 
 message TokenInfo {
@@ -132,12 +122,10 @@ message TokenInfo {
     double   ico_rate_with_eth      = 6;
     string   website_url            = 7;
     int64    updated_at             = 8;
-    TokenID  token_id               = 9;  // token id in merkle tree
-    bool     deposit_enabled        = 10;
 }
 
 message TokenTicker {
-    string token = 1;  // token address
+    TokenID token_id = 1;  // token address
     double price = 2; // price of current currency
     double volume_24h = 3; // volume of current currency
     double percent_change_1h = 4;
@@ -190,8 +178,17 @@ enum ErrorCode{
 
 }
 
-message Error{
+message Error {
     ErrorCode code = 1;
     string message = 2;
 }
 
+enum OrderStatus {
+    STATUS_NEW                      = 0;
+    STATUS_PENDING                  = 1;
+    STATUS_EXPIRED                  = 2;
+    STATUS_COMPLETELY_FILLED        = 4;
+    STATUS_PARTIALLY_FILLED         = 5;
+    STATUS_ONCHAIN_CANCELLED        = 6;
+    STATUS_SOFT_CANCELLED           = 7;
+}

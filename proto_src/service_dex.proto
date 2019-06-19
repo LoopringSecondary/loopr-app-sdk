@@ -29,8 +29,8 @@ import "data_types.proto";
     We use `string` to represent amounts in two forms:
     1) full decimal string (FDS), i.e., "124567000000000000000"
     2) double value string (DVS), i.e., "123.45600"
-
 */
+
 message DexConfigurations {
     uint64 dex_id = 1;
     string dex_address = 2;
@@ -91,17 +91,16 @@ message GetMarketsRes {
 }
 
 message TokenBalance {
-    string address = 1;
-    string symbol = 2;
-    uint32 id = 3;
-    string balance = 4; // FDS
-    uint32 decimals = 5;
+    uint32 id              = 1;
+    string balance         = 2; // FDS
+    string order_frozen    = 3; // FDS
+    string withdraw_frozen = 4; // FDS  TODO: yangli
 }
 
 message Account {
-    string address = 1;
-    uint64 account_id = 2;
-    repeated TokenBalance balances = 3;
+    string address                  = 1;
+    data.types.AccountID account_id = 2;
+    repeated TokenBalance balances  = 3;
 }
 
 message GetAvailableBalanceReq {
@@ -116,23 +115,23 @@ message GetAvailableBalanceRes {
 message Order {
     uint64 uuid = 1;
     bool is_sell = 2;
-    string base_symbol = 3;
+    data.types.TokenID base_token_id = 3;
     string base_amount = 4; // DVS
     string base_fill_amount = 5; // DVS
     string quote_symbol = 6;
     string quote_amount = 7; // DVS
     string quote_fill_amount = 8; // DVS
-    string status = 9;
-    string submitted_at = 10;
+    data.types.OrderStatus status = 9;
+    uint64 submitted_at = 10;
+    uint64 processed_at = 11;
 }
 
 message GetUserOrdersReq {
     uint64 account_id = 1;
     string base_token_id = 2;
     string quote_token_id = 3;
-    uint32 skip = 4;
-    uint32 num = 5;
-    repeated string statuses = 6;
+    data.types.CursorPaging paging = 4;
+    repeated string statuses = 5;
 }
 
 message GetUserOrdersRes {
@@ -144,31 +143,40 @@ message Fill {
     uint64 order_uuid = 2;
     bool is_taker = 3;
     bool is_sell = 4;
-    string base_symbol = 5;
+    data.types.TokenID base_token_id = 5;
     string base_fill_amount = 6; // DVS
-    string quote_symbol = 7;
+    data.types.TokenID quote_token_id = 7;
     string quote_fill_amount = 8; // DVS
-    uint32 fill_percentage = 9; // DVS
-    uint64 timestamp = 10;
+    uint64 timestamp = 9;
 }
 
-message UserTransfer {
+message MarketTicker {
+    data.types.TokenID base_token_id = 1;  // base token id
+    data.types.TokenID quote_token_id = 2; // quote token id
+    double exchange_rate = 3; // exchange rate for base token to quote token
+    double price = 4; // price of quote currency
+    double volume_24h = 5; // volume of quote token
+    double percent_change_1h = 6;
+    double percent_change_24h = 7;
+    double percent_change_7d = 8;
+}
+
+// TODO: check with yadong
+message UserTransaction {
     uint64 request_id = 1;
     uint64 account_id = 2;
     uint32 token_id = 3;
-    string token_symbol = 4;
-    string amount = 5; // DVS
-    uint64 submitted_at = 6;
-    uint64 updated_at = 7;
-    string status = 8;
-    string transfer_type = 9; // `deposit` or `withdrawal`
+    string amount = 4; // DVS
+    uint64 submitted_at = 5;
+    uint64 updated_at = 6;
+    string status = 7;
+    string transaction_type = 8; // `deposit`, `withdrawal` or `transfer`
 }
 
 message GetUserFillsReq {
     uint64 account_id = 1;
     uint64 order_uuid = 2;
-    uint32 skip = 3;
-    uint32 num = 4;
+    data.types.CursorPaging paging = 3;
 }
 
 message GetMarketFillsReq {
@@ -186,6 +194,7 @@ message OrderBook {
         string base_amount = 2; // DVS
         string quote_amount = 3; // DVS
     }
+
     message Update {
         int32 level = 1;
         repeated Item sells = 2;
@@ -198,8 +207,8 @@ message OrderBook {
     string last_price_fiat = 2; // DVS
     repeated Item sells = 3;
     repeated Item buys = 4;
-    string base_symbol = 5;
-    string quote_symbol = 6;
+    data.types.TokenID base_token_id = 5;
+    data.types.TokenID quote_token_id = 6;
 }
 
 message GetOrderBookReq {
@@ -208,6 +217,18 @@ message GetOrderBookReq {
     string fiat_symbol = 3;
 }
 
+/*
+message OHLCData {
+    repeated  double  data      = 1;
+    int64    starting_point     = 2;
+    double     quality          = 3;
+    double     amount           = 4;
+    double     opening_price    = 5;
+    double     closing_price    = 6;
+    double     highest_price    = 7;
+    double     lowest_price     = 8;
+}
+*/
 message Candles {
     message OHLC {
         repeated double ohlc = 1;
@@ -218,29 +239,27 @@ message Candles {
 message GetCandlesReq {
     uint64 market_id = 1; // 32bit base_token_id + 32bit quote_token_id
     string kind = 2;
-    uint32 skip = 3;
-    uint32 num = 4;
+    data.types.CursorPaging paging = 3;
 }
 
-message GetUserTransfersReq {
+message GetUserTransactionsReq {
     uint64 account_id = 1;
     uint32 token_id = 2;
-    string transfer_type = 3; // `deposit`, `withdrawal`, or "both"
-    uint32 skip = 4;
-    uint32 num = 5;
+    string transaction_type = 3; // `deposit`, `withdrawal`, `transfer`, or "both"
+    data.types.CursorPaging paging = 4;
 }
 
-message GetUserTransfersRes {
-    repeated UserTransfer transfers = 1;
+message GetUserTransactionsRes {
+    repeated UserTransaction transactions = 1;
 }
 
 message GetNextOrderIdReq {
     uint64 account_id = 1;
-    uint32 token_id = 2;
+    uint32 token_sell_id = 2;
 }
 
 message SubmitOrderRes {
-    Order order = 1;
+    uint64 order_uuid = 1;
 }
 
 message CancelOrderRes {
@@ -252,29 +271,33 @@ message OffchainWithdrawalalRes {
 }
 
 message SimpleOrderCancellationReq {
-    uint32 exchange_id = 1;
-    uint64 account_id = 2;
-    uint32 order_uuid = 3;
-    string sig = 20;
+    uint32 exchange_id  = 1;
+    uint64 account_id   = 2;
+    uint64 order_uuid   = 3;
+    uint64 market_id    = 4; // 32 + 32
+    uint64 timestamp    = 5;
+    string sig          = 6;
 }
 
 service DexService {
     // queries
-    rpc getDexConfigurations (google.protobuf.Empty) returns (DexConfigurations);
+    rpc getDexConfigurations (google.protobuf.Empty) returns (DexConfigurations); //TODO: check with dongge
 
     rpc getTokens (GetTokensReq)  returns (GetTokensRes);
 
-    rpc getMarkets (GetMarketsReq) returns (GetMarketsRes);
+    rpc getMarkets (GetMarketsReq) returns (GetMarketsRes); // TODO: check with dongge
     rpc getMarketFills (GetMarketFillsReq) returns (GetFillsRes);
     rpc getOrderBook (GetOrderBookReq) returns (OrderBook);
-    rpc getCandles (GetCandlesReq) returns (Candles);
+    rpc getCandles (GetCandlesReq) returns (Candles); //TODO: check with dongge
 
     rpc getAccount (google.protobuf.StringValue) returns (Account);
 
     rpc getUserOrders (GetUserOrdersReq) returns (GetUserOrdersRes);
     rpc getUserFills (GetUserFillsReq) returns (GetFillsRes);
-    rpc getUserTransfers (GetUserTransfersReq) returns (GetUserTransfersRes);
+    rpc getUserTransfers (GetUserTransactionsReq) returns (GetUserTransactionsRes);
     rpc getNextOrderId (GetNextOrderIdReq) returns (google.protobuf.UInt32Value);
+
+    rpc getNonce (google.protobuf.UInt32Value) returns (google.protobuf.UInt32Value);
 
     // order operations
     rpc submitOrder (data.order.Order) returns (SubmitOrderRes);
@@ -294,6 +317,15 @@ message SocketIOSubscription {
         io.lightcone.data.types.Error error = 1;
     }
 
+    message ParamsForFills {
+        data.types.AccountID account_id = 1;
+        uint64 market_id                             = 2; // 32bit base_token_id + 32bit quote_token_id
+    }
+
+    message ParamsForInternalTickers {
+        uint64 market_id                = 1; // 32bit base_token_id + 32bit quote_token_id
+    }
+
     // subscribe for message Orderbook.InternalUpdate defined in core.proto
     message ParamsForOrderbook {
         int32 level = 1;
@@ -308,10 +340,14 @@ message SocketIOSubscription {
     }
 
     message Notification {
-        io.lightcone.dex.OrderBook.Update orderbook = 1;
-        io.lightcone.dex.Candles internal_ticker = 2;
+        io.lightcone.dex.OrderBook.Update orderbook       = 1;
+        io.lightcone.dex.Candles candles                  = 2;
+        io.lightcone.dex.Fill fill                        = 3;
+        io.lightcone.dex.MarketTicker internal_ticker     = 4;
     }
 
-    ParamsForOrderbook params_for_orderbook = 1;
-    ParamsForCandles params_for_candles = 2;
+    ParamsForOrderbook params_for_orderbook               = 1;
+    ParamsForCandles params_for_candles                   = 2;
+    ParamsForFills params_for_fills                       = 3;
+    ParamsForInternalTickers params_for_internal_tickers  = 4;
 }
