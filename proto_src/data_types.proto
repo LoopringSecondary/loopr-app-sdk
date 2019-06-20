@@ -94,7 +94,6 @@ message Account {
     EdDSAPubKey pub_key                             = 2;
 }
 
-
 message TokenMetadata {
     enum Type {
         TOKEN_TYPE_ERC20       = 0;
@@ -137,6 +136,44 @@ message Token {
     TokenMetadata metadata = 1;
     TokenInfo     info     = 2;
     TokenTicker   ticker   = 3;
+}
+
+message MarketMetadata {
+    enum Status {
+        TERMINATED                  = 0;
+        ACTIVE                      = 1;
+        READONLY                    = 2;
+    }
+
+    Status status                               = 1;
+    string quote_token_symbol                   = 2;
+    string base_token_symbol                    = 3;
+    int32  max_numbers_of_orders                = 4;
+    int32  price_decimals                       = 5;
+    int32  orderbook_agg_levels                 = 6;
+    int32  precision_for_amount                 = 7;
+    int32  precision_for_total                  = 8;
+    bool   browsable_in_wallet                  = 9;
+    int64  updated_at                           = 10;
+
+    uint64 market_id                            = 20; // computed
+    string market_hash                          = 21; // computed
+}
+
+message MarketTicker {
+    string base_token = 1;  // base token address
+    string quote_token = 2; // quote token address
+    double exchange_rate = 3; // exchange rate for base token to quote token
+    double price = 4; // price of quote currency
+    double volume_24h = 5; // volume of quote token
+    double percent_change_1h = 6;
+    double percent_change_24h = 7;
+    double percent_change_7d = 8;
+}
+
+message Market {
+    MarketMetadata metadata = 1;
+    MarketTicker   ticker   = 2;
 }
 
 enum Interval {

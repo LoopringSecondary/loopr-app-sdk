@@ -16,7 +16,7 @@
 
 syntax = "proto3";
 option java_multiple_files = true;
-package io.lightcone.dex;
+package io.lightcone.data.dex;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
@@ -36,9 +36,10 @@ message DexConfigurations {
     string dex_address = 2;
     string deposit_fee_eth = 3; // FDS
     string onchain_withdrawal_fee_eth = 4; // FDS
-    string offchain_withdrawal_fee_eth = 5; // FDS
-    string order_cancellation_fee_eth = 6; // FDS
-    bool in_maintainance = 7;
+    types.TokenID offchain_withdrawal_fee_token_id = 5; // 前端无需设计展示，以withdraw token为准
+    string offchain_withdrawal_fee_amount = 6; // FDS
+    string order_cancellation_fee_eth = 7; // FDS
+    bool in_maintainance = 8;
 }
 
 message TokenInfo {
@@ -47,24 +48,6 @@ message TokenInfo {
     string address = 3;
     uint32 decimals = 4;
     string status = 5;
-}
-
-message MarketInfo {
-    uint64 id = 1;
-    uint32 base_token_id = 2;
-    uint32 base_token_symbol = 3;
-    uint32 quote_token_id = 4;
-    uint32 quote_token_symbol = 5;
-    string status = 6;
-    string price = 7; // DVS
-    string price_fiat = 8; // DVS
-    string volume = 9; // DVS
-    string change = 10; // DVS
-}
-
-message MarketGroup {
-    uint32 quote_token_id = 1;
-    repeated MarketInfo markets = 2;
 }
 
 message GetTokensReq {
@@ -76,18 +59,19 @@ message GetTokensReq {
 }
 
 message GetTokensRes {
-    repeated io.lightcone.data.types.Token tokens = 1;
+    repeated types.Token tokens = 1;
 }
 
 message GetMarketsReq {
-    map<uint32, TokenInfo> tokens = 1;
-    repeated MarketGroup market_groups = 2;
-    string fiat_symbol = 3;
-    string sorting = 4; // not supported yet
+    bool require_metadata = 1;
+    bool require_ticker = 2;
+    bool query_loopring_ticker = 3;
+    string quote_currency_for_ticker = 4;  // USD, RMB
+    repeated uint64 market_id = 5; // empty for query all
 }
 
 message GetMarketsRes {
-    repeated MarketInfo markets = 1;
+    repeated types.Market markets = 1;
 }
 
 message TokenBalance {
@@ -99,7 +83,7 @@ message TokenBalance {
 
 message Account {
     string address                  = 1;
-    data.types.AccountID account_id = 2;
+    types.AccountID account_id = 2;
     repeated TokenBalance balances  = 3;
 }
 
@@ -115,13 +99,13 @@ message GetAvailableBalanceRes {
 message Order {
     uint64 uuid = 1;
     bool is_sell = 2;
-    data.types.TokenID base_token_id = 3;
+    types.TokenID base_token_id = 3;
     string base_amount = 4; // DVS
     string base_fill_amount = 5; // DVS
     string quote_symbol = 6;
     string quote_amount = 7; // DVS
     string quote_fill_amount = 8; // DVS
-    data.types.OrderStatus status = 9;
+    types.OrderStatus status = 9;
     uint64 submitted_at = 10;
     uint64 processed_at = 11;
 }
@@ -130,7 +114,7 @@ message GetUserOrdersReq {
     uint64 account_id = 1;
     string base_token_id = 2;
     string quote_token_id = 3;
-    data.types.CursorPaging paging = 4;
+    types.CursorPaging paging = 4;
     repeated string statuses = 5;
 }
 
@@ -143,16 +127,16 @@ message Fill {
     uint64 order_uuid = 2;
     bool is_taker = 3;
     bool is_sell = 4;
-    data.types.TokenID base_token_id = 5;
+    types.TokenID base_token_id = 5;
     string base_fill_amount = 6; // DVS
-    data.types.TokenID quote_token_id = 7;
+    types.TokenID quote_token_id = 7;
     string quote_fill_amount = 8; // DVS
     uint64 timestamp = 9;
 }
 
 message MarketTicker {
-    data.types.TokenID base_token_id = 1;  // base token id
-    data.types.TokenID quote_token_id = 2; // quote token id
+    types.TokenID base_token_id = 1;  // base token id
+    types.TokenID quote_token_id = 2; // quote token id
     double exchange_rate = 3; // exchange rate for base token to quote token
     double price = 4; // price of quote currency
     double volume_24h = 5; // volume of quote token
@@ -176,7 +160,7 @@ message UserTransaction {
 message GetUserFillsReq {
     uint64 account_id = 1;
     uint64 order_uuid = 2;
-    data.types.CursorPaging paging = 3;
+    types.CursorPaging paging = 3;
 }
 
 message GetMarketFillsReq {
@@ -207,8 +191,8 @@ message OrderBook {
     string last_price_fiat = 2; // DVS
     repeated Item sells = 3;
     repeated Item buys = 4;
-    data.types.TokenID base_token_id = 5;
-    data.types.TokenID quote_token_id = 6;
+    types.TokenID base_token_id = 5;
+    types.TokenID quote_token_id = 6;
 }
 
 message GetOrderBookReq {
@@ -237,16 +221,16 @@ message Candles {
 }
 
 message GetCandlesReq {
-    uint64 market_id = 1; // 32bit base_token_id + 32bit quote_token_id
-    string kind = 2;
-    data.types.CursorPaging paging = 3;
+    uint64 market_id          = 1; // 32bit base_token_id + 32bit quote_token_id
+    types.Interval interval   = 2;
+    types.CursorPaging paging = 3;
 }
 
 message GetUserTransactionsReq {
     uint64 account_id = 1;
     uint32 token_id = 2;
     string transaction_type = 3; // `deposit`, `withdrawal`, `transfer`, or "both"
-    data.types.CursorPaging paging = 4;
+    types.CursorPaging paging = 4;
 }
 
 message GetUserTransactionsRes {
@@ -279,16 +263,17 @@ message SimpleOrderCancellationReq {
     string sig          = 6;
 }
 
+// Error handling: https://github.com/avinassh/grpc-errors
 service DexService {
     // queries
-    rpc getDexConfigurations (google.protobuf.Empty) returns (DexConfigurations); //TODO: check with dongge
+    rpc getDexConfigurations (google.protobuf.Empty) returns (DexConfigurations);
 
     rpc getTokens (GetTokensReq)  returns (GetTokensRes);
 
-    rpc getMarkets (GetMarketsReq) returns (GetMarketsRes); // TODO: check with dongge
+    rpc getMarkets (GetMarketsReq) returns (GetMarketsRes);
     rpc getMarketFills (GetMarketFillsReq) returns (GetFillsRes);
     rpc getOrderBook (GetOrderBookReq) returns (OrderBook);
-    rpc getCandles (GetCandlesReq) returns (Candles); //TODO: check with dongge
+    rpc getCandles (GetCandlesReq) returns (Candles);
 
     rpc getAccount (google.protobuf.StringValue) returns (Account);
 
@@ -314,12 +299,12 @@ service DexService {
 
 message SocketIOSubscription {
     message Ack {
-        io.lightcone.data.types.Error error = 1;
+        types.Error error               = 1;
     }
 
     message ParamsForFills {
-        data.types.AccountID account_id = 1;
-        uint64 market_id                             = 2; // 32bit base_token_id + 32bit quote_token_id
+        types.AccountID account_id      = 1;
+        uint64 market_id                = 2; // 32bit base_token_id + 32bit quote_token_id
     }
 
     message ParamsForInternalTickers {
@@ -336,14 +321,14 @@ message SocketIOSubscription {
         uint64 market_id = 1; // 32bit base_token_id + 32bit quote_token_id
         int64 begin_time = 2;
         int64 end_time = 3;
-        io.lightcone.data.types.Interval interval = 4;
+        types.Interval interval = 4;
     }
 
     message Notification {
-        io.lightcone.dex.OrderBook.Update orderbook       = 1;
-        io.lightcone.dex.Candles candles                  = 2;
-        io.lightcone.dex.Fill fill                        = 3;
-        io.lightcone.dex.MarketTicker internal_ticker     = 4;
+        OrderBook.Update orderbook                        = 1;
+        Candles candles                                   = 2;
+        Fill fill                                         = 3;
+        MarketTicker internal_ticker                      = 4;
     }
 
     ParamsForOrderbook params_for_orderbook               = 1;

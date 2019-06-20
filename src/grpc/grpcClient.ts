@@ -14,15 +14,16 @@ import {
     GetFillsRes,
     GetMarketFillsReq,
     GetMarketsReq,
-    GetMarketsRes, GetNextOrderIdReq,
+    GetMarketsRes,
+    GetNextOrderIdReq,
     GetOrderBookReq,
     GetTokensReq,
     GetTokensRes,
     GetUserFillsReq,
     GetUserOrdersReq,
     GetUserOrdersRes,
-    GetUserTransfersReq,
-    GetUserTransfersRes,
+    GetUserTransactionsReq,
+    GetUserTransactionsRes,
     OffchainWithdrawalalRes,
     OrderBook,
     SimpleOrderCancellationReq,
@@ -119,9 +120,9 @@ class GrpcClient {
         });
     }
 
-    public async getUserTransfers(param: GetUserTransfersReq, metadata: Metadata = new Metadata()): Promise<GetUserTransfersRes> {
-        return new Promise<GetUserTransfersRes>((resolve: Function, reject: Function): void => {
-            this.client.getUserTransfers(param, metadata, (err: ServiceError | null, res: GetUserTransfersRes) => {
+    public async getUserTransactions(param: GetUserTransactionsReq, metadata: Metadata = new Metadata()): Promise<GetUserTransactionsRes> {
+        return new Promise<GetUserTransactionsRes>((resolve: Function, reject: Function): void => {
+            this.client.getUserTransfers(param, metadata, (err: ServiceError | null, res: GetUserTransactionsRes) => {
                 if (err) {
                     return reject(err);
                 }
